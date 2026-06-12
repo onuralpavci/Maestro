@@ -69,6 +69,7 @@ import maestro_android.viewHierarchyResponse
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.io.OutputStream
 import java.util.Timer
 import java.util.TimerTask
@@ -281,12 +282,29 @@ class Service(
             }
 
             override fun onError(t: Throwable) {
+                runCatching { closeStream() }
                 responseObserver.onError(t.internalError())
             }
 
             override fun onCompleted() {
+                // MediaProvider only finalizes a freshly-inserted entry (flushes
+                // the bytes and scans it so other apps like documentsui can see
+                // it) when its output stream is closed. Close it explicitly here
+                // so the media is published deterministically, rather than
+                // whenever the leaked stream happens to be finalized by GC.
+                try {
+                    closeStream()
+                } catch (e: IOException) {
+                    responseObserver.onError(e.internalError())
+                    return
+                }
                 responseObserver.onNext(addMediaResponse { })
                 responseObserver.onCompleted()
+            }
+
+            private fun closeStream() {
+                outputStream?.use { it.flush() }
+                outputStream = null
             }
 
         }
