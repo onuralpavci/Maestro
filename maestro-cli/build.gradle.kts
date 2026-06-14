@@ -1,6 +1,7 @@
 import org.jreleaser.model.Active.ALWAYS
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jreleaser.model.Stereotype
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import java.util.Properties
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -207,6 +208,12 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
 
 tasks.named("compileKotlin", KotlinCompilationTask::class.java) {

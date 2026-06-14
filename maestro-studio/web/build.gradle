@@ -4,7 +4,10 @@ tasks.register("deps", Exec.class) {
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
         commandLine 'npm.cmd', 'install'
     } else {
-        commandLine 'npm', 'install'
+        def npmPath = ['/opt/homebrew/bin/npm', '/usr/local/bin/npm', 'npm'].find { path ->
+            new File(path).exists() || path == 'npm'
+        }
+        commandLine npmPath, 'install'
     }
 }
 
@@ -18,6 +21,9 @@ tasks.register("build", Exec.class) {
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
         commandLine 'npm.cmd', 'run', 'build'
     } else {
-        commandLine("npm", "run", "build")
+        def npmPath = ['/opt/homebrew/bin/npm', '/usr/local/bin/npm', 'npm'].find { path ->
+            new File(path).exists() || path == 'npm'
+        }
+        commandLine npmPath, 'run', 'build'
     }
 }

@@ -476,11 +476,16 @@ class TestCommand : Callable<Int> {
         }
     }
 
-    private fun selectPort(effectiveShards: Int): Int =
-        if (effectiveShards == 1) 7001
+    private fun selectPort(effectiveShards: Int): Int {
+        val envPort = System.getenv("MAESTRO_DRIVER_PORT")?.toIntOrNull()
+        if (envPort != null) {
+            return envPort
+        }
+        return if (effectiveShards == 1) 7001
         else (7001..7128).shuffled().find { port ->
             usedPorts.putIfAbsent(port, true) == null
         } ?: error("No available ports found")
+    }
 
     private fun runSingleFlow(
         maestro: Maestro,
