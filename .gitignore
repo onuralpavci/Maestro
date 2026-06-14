@@ -6,6 +6,8 @@
 # Ignore Gradle build output directory
 build
 
+.idea
+
 # Ignore Gradle local properties
 local.properties
 

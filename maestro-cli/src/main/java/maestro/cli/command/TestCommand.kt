@@ -543,6 +543,12 @@ class TestCommand : Callable<Int> {
             }
             return userPort
         }
+        // Allow external port management via env var (e.g. CI/CD pipelines).
+        // Implies independent sessions; see MaestroSessionManager.
+        val envPort = System.getenv("MAESTRO_DRIVER_PORT")?.toIntOrNull()
+        if (envPort != null) {
+            return envPort
+        }
         // Let the OS pick an available port. ServerSocket(0) guarantees no
         // collision — simpler than scanning a fixed range.
         return ServerSocket(0).use { it.localPort }

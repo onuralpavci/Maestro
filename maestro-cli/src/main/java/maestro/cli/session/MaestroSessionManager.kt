@@ -110,6 +110,9 @@ object MaestroSessionManager {
             selectedDevice = selectedDevice,
             connectToExistingSession = if (isStudio) {
                 false
+            } else if (System.getenv("MAESTRO_DRIVER_PORT") != null) {
+                // External port management implies independent sessions; always do fresh driver setup
+                false
             } else {
                 SessionStore.default.hasActiveSessionForDevice(
                     sessionId,

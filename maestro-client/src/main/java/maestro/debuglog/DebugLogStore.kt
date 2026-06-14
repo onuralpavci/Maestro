@@ -87,10 +87,17 @@ object DebugLogStore {
     }
 
     fun finalizeRun() {
-        fileHandler.close()
-        val output = File(currentRunLogDirectory.parent, "${currentRunLogDirectory.name}.zip")
-        FileUtils.zipDir(currentRunLogDirectory.toPath(), output.toPath())
-        currentRunLogDirectory.deleteRecursively()
+        try {
+            fileHandler.close()
+            if (currentRunLogDirectory.exists()) {
+                val output = File(currentRunLogDirectory.parent, "${currentRunLogDirectory.name}.zip")
+                FileUtils.zipDir(currentRunLogDirectory.toPath(), output.toPath())
+                currentRunLogDirectory.deleteRecursively()
+            }
+        } catch (e: Exception) {
+            // Parallel Maestro instances may share the same log directory timestamp.
+            // If another instance already cleaned it up, ignore the error silently.
+        }
     }
 
     private fun logFile(named: String): File {
